@@ -8,17 +8,12 @@ import milkIcon from "./icons/milk.png";
 import cupIcon from './icons/cup.png';
 
 import Orders from './components/Orders';
+import Customize from './components/Customize';
 
-function arraysAreEqual(arr1, arr2) {
-  // remove duplicates
-  let arrA = [...new Set(arr1)];
-  let arrB = [...new Set(arr2)];
 
-  // First check length
-  if (arrA.length !== arrB.length) return false;
-
-  // Then check each element
-  return arrA.every((element, index) => element === arrB[index]);
+const FLOORS = {
+  default: ["#ab9685", "#e0d5cc"],
+  red: ["#9c3333", "#e3e3e3"]
 }
 
 const RECIPES = {
@@ -28,9 +23,34 @@ const RECIPES = {
   water: ["cup", "water"],
   shot: ["cup", "shot"],
 
+  "cup w/ chocolate": ["cup", "chocolate"],
+  "cup w/ caramel": ["cup", "caramel"],
+  "cup w/ carm, choc": ["cup", "caramel", "chocolate"],
+
+  "ice cup": ["cup", "ice"],
+  "ice water": ["cup", "ice", "water"],
+  "iced milk": ["cup", "ice", "milk"],
+
+  "chocolate milk": ["cup", "milk", "chocolate"],
+  "caramel milk": ["cup", "milk", "caramel"],
+  "caramel chocolate milk": ["cup", "milk", "caramel", "chocolate"],
+
+  "iced chocolate milk": ["cup", "milk", "chocolate", "ice"],
+  "iced caramel milk": ["cup", "milk", "caramel", "ice"],
+  "iced caramel chocolate milk": ["cup", "milk", "caramel", "chocolate", "ice"],
+
+  "chocolate shot": ["cup", "shot", "chocolate"],
+  "caramel shot": ["cup", "shot", "caramel"],
+  "choc caramel shot": ["cup", "shot", "caramel", "chocolate"],
+
   americano: ["cup", "shot", "water"],
   latte: ["cup", "shot", "milk"],
   mocha: ["cup", "shot", "milk", "chocolate"],
+
+  "latte frap": ["cup", "shot", "milk", "ice", "blend"],
+  "mocha frap": ["cup", "shot", "milk", "chocolate", "ice", "blend"],
+
+  "hot chocolate": ["cup", "milk", "chocolate", "heat"],
 
   "caramel latte": ["cup", "shot", "milk", "caramel"],
   "caramel mocha": ["cup", "shot", "milk", "chocolate", "caramel"],
@@ -61,17 +81,28 @@ const APPLIANCES = [
   {
     name: "espresso machine",
     defaultLocation: [0, 0],
-    ingredientToAdd: "shot"
+    ingredientToAdd: "shot",
+    duration: 6,
+    sound: "/music/espresso.mp3",
+    volume: 1,
+    startAudioAt: 3
   },
   {
     name: "steamer",
     defaultLocation: [0, 1],
-    ingredientToAdd: "heat"
+    ingredientToAdd: "heat",
+    duration: 3,
+    sound: "/music/steam.mp3",
+    volume: .5,
+    startAudioAt: .5
   },
   {
     name: "frother",
     defaultLocation: [0, 2],
-    ingredientToAdd: "froth"
+    ingredientToAdd: "froth",
+    duration: 2,
+    sound: "/music/froth.mp3",
+    volume: .3,
   },
   {
     name: "ice dispenser",
@@ -92,6 +123,15 @@ const APPLIANCES = [
     icon: milkIcon
   },
   {
+    name: "blender",
+    defaultLocation: [2, 0],
+    ingredientToAdd: "blend",
+    duration: 3,
+    sound: "/music/blender.mp3",
+    volume: 1,
+    startAudioAt: 1
+  },
+  {
     name: "cup stack",
     defaultLocation: [0, 8],
     ingredientToAdd: "cup",
@@ -104,15 +144,27 @@ const APPLIANCES = [
 
   {
     name: "chocolate pump",
-    defaultLocation: [3, 5],
+    defaultLocation: [2, 5],
     ingredientToAdd: "chocolate"
   },
   {
     name: "caramel pump",
-    defaultLocation: [3, 6],
+    defaultLocation: [2, 6],
     ingredientToAdd: "caramel"
   },
 ]
+
+function arraysAreEqual(arr1, arr2) {
+  // remove duplicates
+  let arrA = [...new Set(arr1)];
+  let arrB = [...new Set(arr2)];
+
+  // First check length
+  if (arrA.length !== arrB.length) return false;
+
+  // Then check each element
+  return arrA.every((element, index) => element === arrB[index]);
+}
 
 const BackgroundMusic = () => {
   const audioRef = useRef(null);
@@ -138,7 +190,7 @@ const BackgroundMusic = () => {
 };
 
 
-const Appliance = ({ app, currIngredients, setCurrIngredients }) => {
+const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, setTileData }) => {
   return <button
     className="flex text-center flex-col justify-center size-full font-bold"
     onClick={() => {
@@ -147,7 +199,7 @@ const Appliance = ({ app, currIngredients, setCurrIngredients }) => {
         return;
       }
 
-      if (!currIngredients.length && app.name != "cup stack") return;
+      if (!currIngredients.length && app.name != "cup stack" && tileData[r][c].timeLeft != 0) return;
       let newItemExists = false;
 
       Object.entries(RECIPES).forEach(([key, value]) => {
@@ -156,13 +208,56 @@ const Appliance = ({ app, currIngredients, setCurrIngredients }) => {
         }
       })
 
-      if (!newItemExists) return;
 
-      setCurrIngredients(prev => [...prev, app.ingredientToAdd])
+      if (app.duration) {
+        if (!tileData[r][c].hasOwnProperty("timeLeft")) {
+          if (!newItemExists) return;
+
+          // start appliance timer
+          if (app.sound) {
+            console.log("play audio");
+            let soundEffect = new Audio(app.sound);
+            !app.startAudioAt ? (soundEffect.currentTime = 0) : (soundEffect.currentTime = app.startAudioAt);
+            soundEffect.volume = app.volume;
+            soundEffect.play();
+
+            setTimeout(() => {
+              soundEffect.pause();
+            }, app.duration*1000);
+          }
+
+          let newTileData = [...tileData];
+          newTileData[r][c].ingredientsIn = currIngredients;
+          newTileData[r][c].timeLeft = app.duration;
+          setTileData(newTileData);
+  
+          setCurrIngredients([]);
+        } else if (tileData[r][c].timeLeft === 0) {
+          // pick up item, timer is done
+
+          console.log("!!!");
+          setCurrIngredients([...tileData[r][c].ingredientsIn, app.ingredientToAdd]);
+
+          let newTileData = [...tileData];
+          delete newTileData[r][c].timeLeft;
+          delete newTileData[r][c].ingredientsIn;
+          setTileData(newTileData);
+
+        }
+      } else {
+        console.log("!!");
+        if (!newItemExists) return;
+        setCurrIngredients(prev => [...prev, app.ingredientToAdd])
+      }
     }}
   >
     {app.icon && <div className="flex items-center justify-center my-2 h-[70%]"><img className="object-contain" src={app.icon} /></div>}
     <p className="px-1 text-lg z-5 h-6">{app.name}</p>
+    {app.duration && tileData[r][c].timeLeft >= 0 && (<div className="w-[90%] mx-2 h-4 mt-10 relative bg-black border-black border-2 rounded-lg">
+      <div className="bg-green-500 h-full border-2 border-black rounded-lg" style={{
+        width: `${(app.duration - tileData[r][c].timeLeft)/app.duration * 100}%`
+      }} />
+    </div>)}
   </button>
 }
 
@@ -172,7 +267,7 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
 
   let tileItem = tileData[r][c];
 
-  if (tileItem.type == "appliance") return <Appliance app={APPLIANCES.filter(a => a.name == tileItem.name)[0]} currIngredients={currIngredients} setCurrIngredients={setCurrIngredients} />
+  if (tileItem.type == "appliance") return <Appliance r={r} c={c} app={APPLIANCES.filter(a => a.name == tileItem.name)[0]} currIngredients={currIngredients} setCurrIngredients={setCurrIngredients} tileData={tileData} setTileData={setTileData} />
   else if (tileItem.type == "item") return <button
     className="text-center flex-col cursor-grab size-full z-30 items-center flex justify-center"
     onClick={() => {
@@ -213,11 +308,16 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
   return null;
 }
 
-const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTileData }) => {
+const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTileData, selectedFloor }) => {
   return <div className="flex flex-row w-full h-full bg-[#574e46] border-[3px] border-[#574e46] rounded-md">
     {[...Array(10)].map((col, c) => <div className="flex flex-col w-full">
       {[...Array(6)].map((row, r) => <div
-        className={`w-[100%] h-[100%] border-[#574e46] rounded-md overflow-hidden border-[3px] ${((!(r % 2) && !(c % 2)) || ((r % 2) && (c % 2))) ? "bg-[#ab9685]" : "bg-[#e0d5cc]"}`}
+        className={`w-[100%] h-[100%] border-[#574e46] rounded-md overflow-hidden border-[3px]`}
+        style={((!(r % 2) && !(c % 2)) || ((r % 2) && (c % 2))) ? {
+          backgroundColor: `${FLOORS[selectedFloor][0]}`
+        } : {
+          backgroundColor: `${FLOORS[selectedFloor][1]}`
+        }}
         onClick={() => {
           if (!currItem) return;
           if (tileData[r][c]) return;
@@ -225,9 +325,10 @@ const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTil
           let isAppliancesOnTile = APPLIANCES.filter(app => app.location == [r, c]).length;
           if (isAppliancesOnTile) return;
 
-          let newTileData = tileData;
+          let newTileData = [...tileData];
           newTileData[r][c] = {type: "item", name: currItem};
           setTileData(newTileData);
+          console.log("!!");
 
           setCurrIngredients([]);
         }}
@@ -252,7 +353,23 @@ function App() {
 
   const [open, setOpen] = useState(false);
 
+  const [selectedFloor, setSelectedFloor] = useState("default");
 
+  // global clock
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTileData((prev) =>
+        prev.map((row) =>
+          row.map((cell) => ((cell && cell.type == "appliance" && cell.hasOwnProperty("timeLeft")) ? {
+            ...cell,
+            timeLeft: Math.max(0, cell.timeLeft - 1)
+          } : cell))
+        )
+      );
+    }, 1000);
+  
+    return () => clearInterval(interval);
+  }, []); // Only run once
 
   useEffect(() => {
     console.log(currIngredients);
@@ -283,7 +400,9 @@ function App() {
 
   const [tileData, setTileData] = useState(emptyTiles);
 
-  useEffect(() => {console.log(tileData)}, [tileData])
+  useEffect(() => {
+    setOrders([]);
+  }, [open])
 
   useEffect(() => {
     let newTiles = tileData;
@@ -325,7 +444,7 @@ function App() {
         <h1 className="">${money}</h1>
       </div>
 
-      <Orders
+      {open ? <Orders
         orders={orders}
         setOrders={setOrders}
         currItem={currItem}
@@ -333,7 +452,9 @@ function App() {
         setMoney={setMoney}
         setRating={setRating}
         open={open}
-      />
+      /> : <Customize
+      
+      />}
 
       <div id="kitchen" className="w-[500px] h-[300px]">
         <Floor
@@ -342,6 +463,7 @@ function App() {
           setCurrIngredients={setCurrIngredients}
           tileData={tileData}
           setTileData={setTileData}
+          selectedFloor={selectedFloor}
         />
       </div>
 
