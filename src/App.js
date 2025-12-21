@@ -1,7 +1,13 @@
 import { useRef, useEffect, useState } from 'react';
 
 import cupsIcon from './icons/cups.png';
+import waterIcon from "./icons/water.png";
+import iceIcon from "./icons/ice.png";
+import milkIcon from "./icons/milk.png";
+
 import cupIcon from './icons/cup.png';
+
+import Orders from './components/Orders';
 
 function arraysAreEqual(arr1, arr2) {
   // remove duplicates
@@ -26,17 +32,24 @@ const RECIPES = {
   latte: ["cup", "shot", "milk"],
   mocha: ["cup", "shot", "milk", "chocolate"],
 
+  "caramel latte": ["cup", "shot", "milk", "caramel"],
+  "caramel mocha": ["cup", "shot", "milk", "chocolate", "caramel"],
+
   "iced water": ["cup", "water", "ice"],
   "iced milk": ["cup", "milk", "ice"],
   "iced americano": ["cup", "shot", "water", "ice"],
   "iced latte": ["cup", "shot", "milk", "ice"],
   "iced mocha": ["cup", "shot", "milk", "chocolate", "ice"],
+  "iced caramel latte": ["cup", "shot", "milk", "caramel", "ice"],
+  "iced caramel mocha": ["cup", "shot", "milk", "chocolate", "caramel", "ice"],
 
   "hot water": ["cup", "water", "heat"],
   "hot milk": ["cup", "milk", "heat"],
   "hot americano": ["cup", "shot", "water", "heat"],
   "hot latte": ["cup", "shot", "milk", "heat"],
   "hot mocha": ["cup", "shot", "milk", "chocolate", "heat"],
+  "hot caramel latte": ["cup", "shot", "milk", "caramel", "heat"],
+  "hot caramel mocha": ["cup", "shot", "milk", "chocolate", "caramel", "heat"],
 
   "frothed milk": ["cup", "milk", "froth"],
 
@@ -63,17 +76,20 @@ const APPLIANCES = [
   {
     name: "ice dispenser",
     defaultLocation: [0, 4],
-    ingredientToAdd: "ice"
+    ingredientToAdd: "ice",
+    icon: iceIcon
   },
   {
     name: "water dispenser",
     defaultLocation: [0, 5],
-    ingredientToAdd: "water"
+    ingredientToAdd: "water",
+    icon: waterIcon
   },
   {
     name: "milk maker",
     defaultLocation: [0, 6],
-    ingredientToAdd: "milk"
+    ingredientToAdd: "milk",
+    icon: milkIcon
   },
   {
     name: "cup stack",
@@ -90,6 +106,11 @@ const APPLIANCES = [
     name: "chocolate pump",
     defaultLocation: [3, 5],
     ingredientToAdd: "chocolate"
+  },
+  {
+    name: "caramel pump",
+    defaultLocation: [3, 6],
+    ingredientToAdd: "caramel"
   },
 ]
 
@@ -140,8 +161,8 @@ const Appliance = ({ app, currIngredients, setCurrIngredients }) => {
       setCurrIngredients(prev => [...prev, app.ingredientToAdd])
     }}
   >
-    {app.icon && <div className="flex items-center justify-center mt-0 -mb-2"><img className="h-[90%]" src={app.icon} /></div>}
-    <p className="px-1 text-lg z-5">{app.name}</p>
+    {app.icon && <div className="flex items-center justify-center my-2 h-[70%]"><img className="object-contain" src={app.icon} /></div>}
+    <p className="px-1 text-lg z-5 h-6">{app.name}</p>
   </button>
 }
 
@@ -153,7 +174,7 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
 
   if (tileItem.type == "appliance") return <Appliance app={APPLIANCES.filter(a => a.name == tileItem.name)[0]} currIngredients={currIngredients} setCurrIngredients={setCurrIngredients} />
   else if (tileItem.type == "item") return <button
-    className="text-center flex-col cursor-grab size-full z-10 items-center flex justify-center"
+    className="text-center flex-col cursor-grab size-full z-30 items-center flex justify-center"
     onClick={() => {
       if (currItem) {
         console.log("combining", currItem, tileItem.name);
@@ -186,8 +207,8 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
       
     }}
   >
-    <img className="z-10 size-[55%]" src={cupIcon} />
-    <p className="z-10">{tileItem.name}</p>
+    <img className="z-50 size-[55%]" src={cupIcon} />
+    <p className="z-50">{tileItem.name}</p>
   </button>
   return null;
 }
@@ -223,6 +244,13 @@ function App() {
 
   const [currIngredients, setCurrIngredients] = useState([]);
   const [currItem, setCurrItem] = useState(null);
+
+  const [orders, setOrders] = useState([]);
+
+  const [money, setMoney] = useState(0);
+  const [rating, setRating] = useState(3);
+
+  const [open, setOpen] = useState(false);
 
 
 
@@ -285,8 +313,28 @@ function App() {
   }, [currItem])
 
   return (
-    <div className="App flex items-center justify-center h-[100vh]">
+    <div className="App flex items-center relative justify-center h-[100vh]">
       <BackgroundMusic />
+
+      <div className="p-2 text-2xl font-bold absolute top-0 right-0 flex flex-col gap-4">
+        <button onClick={() => {
+          if (!open) setOpen(true);
+          if (open && !orders.length) setOpen(false);
+        }}>{open ? "OPEN" : "CLOSED"}</button>
+        <h1 className="">{Math.round(rating*10)/10} / 5</h1>
+        <h1 className="">${money}</h1>
+      </div>
+
+      <Orders
+        orders={orders}
+        setOrders={setOrders}
+        currItem={currItem}
+        setCurrIngredients={setCurrIngredients}
+        setMoney={setMoney}
+        setRating={setRating}
+        open={open}
+      />
+
       <div id="kitchen" className="w-[500px] h-[300px]">
         <Floor
           currItem={currItem}
