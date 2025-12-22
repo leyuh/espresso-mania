@@ -7,23 +7,23 @@ body {
 }
 
 /* medium */
-@media screen and (min-width: 800px) and (min-height: 450px) {
+@media screen and (min-width: 800px) and (min-height: 550px) {
   #kitchen {
-    @apply w-[750px] h-[450px];
+    @apply w-[700px] h-[500px];
   }
 }
 
 /* large */
-@media screen and (min-width: 1100px) {
+@media screen and (min-width: 1100px) and (min-height: 800px) {
   #kitchen {
-    @apply w-[1000px] h-[600px];
+    @apply w-[1050px] h-[750px];
   }
 }
 
 /* xl */
-@media screen and (min-width: 1600px) {
+@media screen and (min-width: 1600px) and (min-height: 1100px) {
   #kitchen {
-    @apply w-[1500px] h-[900px];
+    @apply w-[1260px] h-[900px];
   }
 }
 

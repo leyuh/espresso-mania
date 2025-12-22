@@ -9,72 +9,26 @@ import cupIcon from './icons/cup.png';
 
 import Orders from './components/Orders';
 import Customize from './components/Customize';
+import Recipes from './components/Recipes';
 
+import { RECIPES, STOCK } from './components/data.js';
+import Stock from './components/Stock';
 
 const FLOORS = {
   default: ["#ab9685", "#e0d5cc"],
   red: ["#9c3333", "#e3e3e3"]
 }
 
-const RECIPES = {
-  cup: ["cup"],
 
-  milk: ["cup", "milk"],
-  water: ["cup", "water"],
-  shot: ["cup", "shot"],
 
-  "cup w/ chocolate": ["cup", "chocolate"],
-  "cup w/ caramel": ["cup", "caramel"],
-  "cup w/ carm, choc": ["cup", "caramel", "chocolate"],
+const getItemFromIngredients = (ingredients) => {
+  let item = null;
 
-  "ice cup": ["cup", "ice"],
-  "ice water": ["cup", "ice", "water"],
-  "iced milk": ["cup", "ice", "milk"],
+  Object.entries(RECIPES).forEach(([key, value], index) => {
+    if (arraysAreEqual(ingredients.sort(), value)) item = key;
+  });
 
-  "chocolate milk": ["cup", "milk", "chocolate"],
-  "caramel milk": ["cup", "milk", "caramel"],
-  "caramel chocolate milk": ["cup", "milk", "caramel", "chocolate"],
-
-  "iced chocolate milk": ["cup", "milk", "chocolate", "ice"],
-  "iced caramel milk": ["cup", "milk", "caramel", "ice"],
-  "iced caramel chocolate milk": ["cup", "milk", "caramel", "chocolate", "ice"],
-
-  "chocolate shot": ["cup", "shot", "chocolate"],
-  "caramel shot": ["cup", "shot", "caramel"],
-  "choc caramel shot": ["cup", "shot", "caramel", "chocolate"],
-
-  americano: ["cup", "shot", "water"],
-  latte: ["cup", "shot", "milk"],
-  mocha: ["cup", "shot", "milk", "chocolate"],
-
-  "latte frap": ["cup", "shot", "milk", "ice", "blend"],
-  "mocha frap": ["cup", "shot", "milk", "chocolate", "ice", "blend"],
-
-  "hot chocolate": ["cup", "milk", "chocolate", "heat"],
-
-  "caramel latte": ["cup", "shot", "milk", "caramel"],
-  "caramel mocha": ["cup", "shot", "milk", "chocolate", "caramel"],
-
-  "iced water": ["cup", "water", "ice"],
-  "iced milk": ["cup", "milk", "ice"],
-  "iced americano": ["cup", "shot", "water", "ice"],
-  "iced latte": ["cup", "shot", "milk", "ice"],
-  "iced mocha": ["cup", "shot", "milk", "chocolate", "ice"],
-  "iced caramel latte": ["cup", "shot", "milk", "caramel", "ice"],
-  "iced caramel mocha": ["cup", "shot", "milk", "chocolate", "caramel", "ice"],
-
-  "hot water": ["cup", "water", "heat"],
-  "hot milk": ["cup", "milk", "heat"],
-  "hot americano": ["cup", "shot", "water", "heat"],
-  "hot latte": ["cup", "shot", "milk", "heat"],
-  "hot mocha": ["cup", "shot", "milk", "chocolate", "heat"],
-  "hot caramel latte": ["cup", "shot", "milk", "caramel", "heat"],
-  "hot caramel mocha": ["cup", "shot", "milk", "chocolate", "caramel", "heat"],
-
-  "frothed milk": ["cup", "milk", "froth"],
-
-  "cappuccino": ["cup", "froth", "milk", "shot"]
-
+  return item;
 }
 
 const APPLIANCES = [
@@ -82,6 +36,7 @@ const APPLIANCES = [
     name: "espresso machine",
     defaultLocation: [0, 0],
     ingredientToAdd: "shot",
+    requiredItem: "beans",
     duration: 6,
     sound: "/music/espresso.mp3",
     volume: 1,
@@ -106,25 +61,26 @@ const APPLIANCES = [
   },
   {
     name: "ice dispenser",
-    defaultLocation: [0, 4],
+    defaultLocation: [2, 0],
     ingredientToAdd: "ice",
     icon: iceIcon
   },
   {
     name: "water dispenser",
-    defaultLocation: [0, 5],
+    defaultLocation: [2, 1],
     ingredientToAdd: "water",
     icon: waterIcon
   },
   {
     name: "milk maker",
-    defaultLocation: [0, 6],
+    defaultLocation: [2, 2],
     ingredientToAdd: "milk",
+    requiredItem: "milk",
     icon: milkIcon
   },
   {
     name: "blender",
-    defaultLocation: [2, 0],
+    defaultLocation: [0, 3],
     ingredientToAdd: "blend",
     duration: 3,
     sound: "/music/blender.mp3",
@@ -133,24 +89,29 @@ const APPLIANCES = [
   },
   {
     name: "cup stack",
-    defaultLocation: [0, 8],
+    defaultLocation: [0, 5],
     ingredientToAdd: "cup",
     icon: cupsIcon
   },
   {
     name: "trash",
-    defaultLocation: [0, 9],
+    defaultLocation: [0, 6],
+    sound: "/music/trash.mp3",
+    volume: .5,
+    startAudioAt: 0.5
   },
 
   {
     name: "chocolate pump",
     defaultLocation: [2, 5],
-    ingredientToAdd: "chocolate"
+    ingredientToAdd: "chocolate",
+    requiredItem: "chocolate",
   },
   {
     name: "caramel pump",
     defaultLocation: [2, 6],
-    ingredientToAdd: "caramel"
+    ingredientToAdd: "caramel",
+    requiredItem: "caramel",
   },
 ]
 
@@ -190,16 +151,46 @@ const BackgroundMusic = () => {
 };
 
 
-const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, setTileData }) => {
+const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, setTileData, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances }) => {
+  const incorrectSound = useRef(new Audio('/music/wrong.mp3'));
+
   return <button
-    className="flex text-center flex-col justify-center size-full font-bold"
+    className={`flex relative text-center flex-col justify-center size-full md:font-bold ${coordsOfRearrangingApp && coordsOfRearrangingApp[0] == r && coordsOfRearrangingApp[1] == c ? "bg-zinc-100" : ""}`}
     onClick={() => {
+
+      if (!open && rearranging) {
+        // PICK UP APPLIANCE
+        if (coordsOfRearrangingApp == null) {
+          setCoordsOfRearrangingApp([r, c]);
+        } else if (coordsOfRearrangingApp[0] == r && coordsOfRearrangingApp[1] == c) {
+          setCoordsOfRearrangingApp(null);
+        }
+        return;
+      }
+    
       if (app.name == "trash") {
+        // USE TRASH
         setCurrIngredients([]);
+
+        if (app.sound) {
+          console.log("play audio");
+          
+          let soundEffect = new Audio(app.sound);
+          !app.startAudioAt ? (soundEffect.currentTime = 0) : (soundEffect.currentTime = app.startAudioAt);
+          soundEffect.volume = app.volume;
+          soundEffect.play();
+
+          setTimeout(() => {
+            soundEffect.pause();
+          }, 1000);
+        }
+
         return;
       }
 
-      if (!currIngredients.length && app.name != "cup stack" && tileData[r][c].timeLeft != 0) return;
+      let runningApp = runningAppliances.find(runningApp => runningApp.name == app.name);
+
+      if (!currIngredients.length && app.name != "cup stack" && (!runningApp || runningApp.timeLeft != 0)) return;
       let newItemExists = false;
 
       Object.entries(RECIPES).forEach(([key, value]) => {
@@ -210,8 +201,15 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
 
 
       if (app.duration) {
-        if (!tileData[r][c].hasOwnProperty("timeLeft")) {
+        if (!runningApp) {
           if (!newItemExists) return;
+          
+          if (app.requiredItem && stock[app.requiredItem] == 0) {
+            incorrectSound.current.currentTime = 0; // Rewind to start
+            incorrectSound.current.volume = 0.5;
+            incorrectSound.current.play();
+            return;
+          };
 
           // start appliance timer
           if (app.sound) {
@@ -228,46 +226,74 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
 
           let newTileData = [...tileData];
           newTileData[r][c].ingredientsIn = currIngredients;
-          newTileData[r][c].timeLeft = app.duration;
           setTileData(newTileData);
+
+          setRunningAppliances(prev => [...prev, {
+            name: app.name,
+            timeLeft: app.duration
+          }]);
+          
+
+          if (app.requiredItem) {
+            let newStock = {...stock};
+            newStock[app.requiredItem]--;
+            setStock(newStock);
+          }
   
           setCurrIngredients([]);
-        } else if (tileData[r][c].timeLeft === 0) {
+        } else if (runningApp && runningApp.timeLeft == 0) {
           // pick up item, timer is done
 
           console.log("!!!");
           setCurrIngredients([...tileData[r][c].ingredientsIn, app.ingredientToAdd]);
 
           let newTileData = [...tileData];
-          delete newTileData[r][c].timeLeft;
           delete newTileData[r][c].ingredientsIn;
           setTileData(newTileData);
+
+          let newRunningApps = [...runningAppliances].filter(a => a.name != runningApp.name);
+          setRunningAppliances(newRunningApps);
 
         }
       } else {
         console.log("!!");
         if (!newItemExists) return;
+        if (app.requiredItem && stock[app.requiredItem] == 0) {
+          incorrectSound.current.currentTime = 0; // Rewind to start
+          incorrectSound.current.volume = 0.5;
+          incorrectSound.current.play();
+          return;
+        };
+
+        if (app.requiredItem) {
+          let newStock = {...stock};
+          newStock[app.requiredItem]--;
+          setStock(newStock);
+        }
+
         setCurrIngredients(prev => [...prev, app.ingredientToAdd])
       }
     }}
   >
-    {app.icon && <div className="flex items-center justify-center my-2 h-[70%]"><img className="object-contain" src={app.icon} /></div>}
-    <p className="px-1 text-lg z-5 h-6">{app.name}</p>
-    {app.duration && tileData[r][c].timeLeft >= 0 && (<div className="w-[90%] mx-2 h-4 mt-10 relative bg-black border-black border-2 rounded-lg">
+    {app.requiredItem && <p className=" absolute top-0 w-full text-black text-sm">{stock[app.requiredItem] > 0 ? `${stock[app.requiredItem]} serving(s) ${app.requiredItem}` : "!!!"}</p>}
+    {app.icon && <div className="flex items-center justify-center my-2 h-[70%] "><img className="object-contain w-full h-full relative" src={app.icon} /></div>}
+    <p className="px-1 text-sm lg:text-lg z-5 h-6 -mt-3 md:mt-0">{app.name}</p>
+    {(app.duration && runningAppliances.filter(runningApp => runningApp.name == app.name).length) ? (<div className="w-[90%] mx-2 h-4 mt-10 relative bg-black border-black border-2 rounded-lg">
       <div className="bg-green-500 h-full border-2 border-black rounded-lg" style={{
-        width: `${(app.duration - tileData[r][c].timeLeft)/app.duration * 100}%`
+        width: `${(app.duration - runningAppliances.find(runningApp => runningApp.name == app.name).timeLeft)/app.duration * 100}%`
       }} />
-    </div>)}
+      <p className="font-normal mt-1">{getItemFromIngredients([...tileData[r][c].ingredientsIn, app.ingredientToAdd])}</p>
+    </div>) : (<></>)}
   </button>
 }
 
-const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, setTileData) => {
+const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, setTileData, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances ) => {
   if (!tileData) return null;
   if (!tileData[r][c]) return null;
 
   let tileItem = tileData[r][c];
 
-  if (tileItem.type == "appliance") return <Appliance r={r} c={c} app={APPLIANCES.filter(a => a.name == tileItem.name)[0]} currIngredients={currIngredients} setCurrIngredients={setCurrIngredients} tileData={tileData} setTileData={setTileData} />
+  if (tileItem.type == "appliance") return <Appliance r={r} c={c} app={APPLIANCES.filter(a => a.name == tileItem.name)[0]} currIngredients={currIngredients} setCurrIngredients={setCurrIngredients} tileData={tileData} setTileData={setTileData} open={open} rearranging={rearranging} coordsOfRearrangingApp={coordsOfRearrangingApp} setCoordsOfRearrangingApp={setCoordsOfRearrangingApp} stock={stock} setStock={setStock} runningAppliances={runningAppliances} setRunningAppliances={setRunningAppliances} />
   else if (tileItem.type == "item") return <button
     className="text-center flex-col cursor-grab size-full z-30 items-center flex justify-center"
     onClick={() => {
@@ -294,9 +320,15 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
         setCurrIngredients([]);
         
       } else if (!currItem) {
+        console.log("picking up item");
+        console.log(RECIPES[tileItem.name]);
         setCurrIngredients(RECIPES[tileItem.name]);
-        let newItems = tileData;
+
+        let newItems = tileData.map(r => [...r]);  
+        newItems[r] = [...newItems[r]];
         newItems[r][c] = null;
+
+        console.log(newItems);
         setTileData(newItems);
       }
       
@@ -308,23 +340,42 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
   return null;
 }
 
-const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTileData, selectedFloor }) => {
+const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTileData, selectedFloor, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances }) => {
   return <div className="flex flex-row w-full h-full bg-[#574e46] border-[3px] border-[#574e46] rounded-md">
-    {[...Array(10)].map((col, c) => <div className="flex flex-col w-full">
-      {[...Array(6)].map((row, r) => <div
-        className={`w-[100%] h-[100%] border-[#574e46] rounded-md overflow-hidden border-[3px]`}
+    {[...Array(7)].map((col, c) => <div className="flex flex-col w-full">
+      {[...Array(5)].map((row, r) => <div
+        className={`w-[100%] h-[100%] ${!rearranging ? "border-[#574e46]" : "border-green-600"} rounded-md overflow-hidden border-[3px]`}
         style={((!(r % 2) && !(c % 2)) || ((r % 2) && (c % 2))) ? {
           backgroundColor: `${FLOORS[selectedFloor][0]}`
         } : {
           backgroundColor: `${FLOORS[selectedFloor][1]}`
         }}
         onClick={() => {
-          if (!currItem) return;
+          let isApplianceOnTile = false;
+
+          for (let r2 = 0; r2 < tileData.length; r2++) {
+            for (let c2 = 0; c2 < tileData[r2].length; c2++) {
+              if (r2 == r && c2 == c && tileData[r2][c2] && tileData[r2][c2].type == "appliance") isApplianceOnTile = true;
+            }
+          }
+
+          if (!currItem && rearranging && coordsOfRearrangingApp != null) {
+            if (isApplianceOnTile) return;
+            // PLACE APPLIANCE
+            let appToMove = tileData[coordsOfRearrangingApp[0]][coordsOfRearrangingApp[1]];
+
+            let newTileData = [...tileData];
+            newTileData[r][c] = appToMove;
+            newTileData[coordsOfRearrangingApp[0]][coordsOfRearrangingApp[1]] = null;
+            setTileData(newTileData);
+
+            setCoordsOfRearrangingApp(null);
+          }
           if (tileData[r][c]) return;
+          if (isApplianceOnTile) return;
+          if (currIngredients.length == 0) return;
 
-          let isAppliancesOnTile = APPLIANCES.filter(app => app.location == [r, c]).length;
-          if (isAppliancesOnTile) return;
-
+          console.log("placing");
           let newTileData = [...tileData];
           newTileData[r][c] = {type: "item", name: currItem};
           setTileData(newTileData);
@@ -333,7 +384,7 @@ const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTil
           setCurrIngredients([]);
         }}
       >
-        {getTile(r, c, currItem, currIngredients, setCurrIngredients, tileData, setTileData)}
+        {getTile(r, c, currItem, currIngredients, setCurrIngredients, tileData, setTileData, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances)}
       </div>)}
     </div>)}
   </div>
@@ -353,18 +404,54 @@ function App() {
 
   const [open, setOpen] = useState(false);
 
+  const [rearranging, setRearranging] = useState(false);
+  const [coordsOfRearrangingApp, setCoordsOfRearrangingApp] = useState(null);
+
+  const [showRecipes, setShowRecipes] = useState(false);
+  const [showStock, setShowStock] = useState(false);
+
+  const [stock, setStock] = useState({});
+
   const [selectedFloor, setSelectedFloor] = useState("default");
+
+  const [runningAppliances, setRunningAppliances] = useState([]);
+
+  let emptyTiles = [
+    [null, null, null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null, null, null],
+    [null, null, null, null, null, null, null, null, null, null]
+  ];
+
+  const [tileData, setTileData] = useState(emptyTiles);
+
+
+  useEffect(() => {
+    if (!rearranging) return;
+
+    let newTileData = tileData.map(r => [...r]);  
+
+    for (let r = 0; r < tileData.length; r++) {
+      newTileData[r] = [...newTileData[r]];
+      for (let c = 0; c < tileData[r].length; c++) {
+        if (!newTileData[r][c] || newTileData[r][c].type == "item") newTileData[r][c] = null;
+      }
+    }
+    setTileData(newTileData);
+
+  }, [rearranging])
+
 
   // global clock
   useEffect(() => {
     const interval = setInterval(() => {
-      setTileData((prev) =>
-        prev.map((row) =>
-          row.map((cell) => ((cell && cell.type == "appliance" && cell.hasOwnProperty("timeLeft")) ? {
-            ...cell,
-            timeLeft: Math.max(0, cell.timeLeft - 1)
-          } : cell))
-        )
+      setRunningAppliances(prev => 
+        prev.map(app => ({
+          ...app,
+          timeLeft: Math.max(0, app.timeLeft - 1)
+        }))
       );
     }, 1000);
   
@@ -389,22 +476,29 @@ function App() {
 
   }, [currIngredients])
 
-  let emptyTiles = [
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null],
-    [null, null, null, null, null, null, null, null, null, null]
-  ];
-
-  const [tileData, setTileData] = useState(emptyTiles);
 
   useEffect(() => {
+    if (open) {
+      setShowStock(false);
+      setRearranging(false);
+      setCoordsOfRearrangingApp(null);
+    }
+
     setOrders([]);
   }, [open])
 
+  //useEffect(() => {console.log(tileData)}, [tileData]);
+
   useEffect(() => {
+    // SET STOCK
+    let newStock = {};
+    Object.entries(STOCK).forEach(([key, value]) => {
+      newStock[key] = value.defaultStock;
+    });
+
+    setStock(newStock);
+
+    // SET TILES
     let newTiles = tileData;
     for (let i = 0; i < APPLIANCES.length; i++) {
       let app = APPLIANCES[i];
@@ -436,12 +530,19 @@ function App() {
       <BackgroundMusic />
 
       <div className="p-2 text-2xl font-bold absolute top-0 right-0 flex flex-col gap-4">
-        <button onClick={() => {
-          if (!open) setOpen(true);
-          if (open && !orders.length) setOpen(false);
+        <button className={`${open ? "bg-green-600" : "bg-red-600"} text-zinc-100 px-6 py-2 border-4 border-black rounded-md font-bold text-lg`} onClick={() => {
+          setOrders([]);
+          setOpen(prev => !prev);
+
+          setRearranging(false);
+          setCoordsOfRearrangingApp(null);
+          
         }}>{open ? "OPEN" : "CLOSED"}</button>
-        <h1 className="">{Math.round(rating*10)/10} / 5</h1>
-        <h1 className="">${money}</h1>
+
+        <button className="bg-[#574e46] text-zinc-100 px-6 -mt-2 py-2 border-4 border-black rounded-md font-bold text-lg" onClick={() => setShowRecipes(prev => !prev)}>Recipes</button>
+        
+        <h1 className="text-right px-2">{Math.round(rating*10)/10} / 5</h1>
+        <h1 className="text-right px-2">${money}</h1>
       </div>
 
       {open ? <Orders
@@ -453,10 +554,13 @@ function App() {
         setRating={setRating}
         open={open}
       /> : <Customize
-      
+        rearranging={rearranging}
+        setRearranging={setRearranging}
+        setCoordsOfRearrangingApp={setCoordsOfRearrangingApp}
+        setShowStock={setShowStock}
       />}
 
-      <div id="kitchen" className="w-[500px] h-[300px]">
+      <div id="kitchen" className="w-[500px] h-[300px] mt-12">
         <Floor
           currItem={currItem}
           currIngredients={currIngredients}
@@ -464,6 +568,14 @@ function App() {
           tileData={tileData}
           setTileData={setTileData}
           selectedFloor={selectedFloor}
+          open={open}
+          rearranging={rearranging}
+          coordsOfRearrangingApp={coordsOfRearrangingApp}
+          setCoordsOfRearrangingApp={setCoordsOfRearrangingApp}
+          stock={stock}
+          setStock={setStock}
+          runningAppliances={runningAppliances}
+          setRunningAppliances={setRunningAppliances}
         />
       </div>
 
@@ -475,6 +587,20 @@ function App() {
         <img src={cupIcon} />
         <p>{currItem}</p>
       </div>}
+
+      {showRecipes && <Recipes 
+        showRecipes={showRecipes}
+        setShowRecipes={setShowRecipes}
+      />}
+
+      {showStock && <Stock
+        showStock={showStock}
+        setShowStock={setShowStock}
+        stock={stock}
+        setStock={setStock}
+        money={money}
+        setMoney={setMoney}
+      />}
 
     </div>
   );

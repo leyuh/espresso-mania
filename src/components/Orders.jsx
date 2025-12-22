@@ -1,49 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 
-const NAMES = ["John", "James", "Jack", "Sandra", "Randal", "Jessica", "George", "Bill", "Barbara", "Bella", "Noah", "Caden", "Peter", "Olivia", "Mia", "Rebecca", "Rose", "Sue", "Paul", "Alex", "Jason"];
-const ORDERS = [
-    {
-        item: "mocha",
-        variants: ["hot", "iced"],
-        price: 5
-    },
-    {
-        item: "hot chocolate",
-        price: 4
-    },
-    {
-        item: "latte frap",
-        price: 5
-    },
-    {
-        item: "mocha frap",
-        price: 5
-    },
-    {
-        item: "caramel mocha",
-        variants: ["hot", "iced"],
-        price: 5
-    },
-    {
-        item: "latte",
-        variants: ["hot", "iced"],
-        price: 4
-    },
-    {
-        item: "caramel latte",
-        variants: ["hot", "iced"],
-        price: 5
-    },
-    {
-        item: "americano",
-        variants: ["hot", "iced"],
-        price: 3
-    },
-    {
-        item: "cappuccino",
-        price: 3
-    },
-];
+import { NAMES, ORDERS } from "./data.js";
+
 const MAX_ORDERS = 3;
 const MAX_COMPLETION_TIME = 60;
 
@@ -120,7 +78,7 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
 
 
         const scheduleNextOrder = () => {
-            const randomDelay = Math.floor(Math.random() * 5000) + 8000; // 8-13s
+            const randomDelay = Math.floor(Math.random() * 7000) + 3000; // 5-15s
       
             timeoutRef.current = setTimeout(() => {
               addOrder();
