@@ -17,15 +17,10 @@ import cupIcon from './icons/cup.png';
 import Orders from './components/Orders';
 import Customize from './components/Customize';
 import Recipes from './components/Recipes';
+import Floors from './components/Floors';
 
-import { RECIPES, STOCK } from './components/data.js';
+import { RECIPES, STOCK, FLOORS } from './components/data.js';
 import Stock from './components/Stock';
-
-const FLOORS = {
-  default: ["#ab9685", "#e0d5cc"],
-  red: ["#9c3333", "#e3e3e3"]
-}
-
 
 
 const getItemFromIngredients = (ingredients) => {
@@ -365,9 +360,9 @@ const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTil
       {[...Array(5)].map((row, r) => <div
         className={`w-[100%] h-[100%] ${!rearranging ? "border-[#574e46]" : "border-green-600"} rounded-md overflow-hidden border-[3px]`}
         style={((!(r % 2) && !(c % 2)) || ((r % 2) && (c % 2))) ? {
-          backgroundColor: `${FLOORS[selectedFloor][0]}`
+          backgroundColor: `${FLOORS[selectedFloor].colors[0]}`
         } : {
-          backgroundColor: `${FLOORS[selectedFloor][1]}`
+          backgroundColor: `${FLOORS[selectedFloor].colors[1]}`
         }}
         onClick={() => {
           let isApplianceOnTile = false;
@@ -418,7 +413,7 @@ function App() {
 
   const [orders, setOrders] = useState([]);
 
-  const [money, setMoney] = useState(0);
+  const [money, setMoney] = useState(1000);
   const [rating, setRating] = useState(3);
 
   const [open, setOpen] = useState(false);
@@ -428,9 +423,11 @@ function App() {
 
   const [showRecipes, setShowRecipes] = useState(false);
   const [showStock, setShowStock] = useState(false);
+  const [showFloors, setShowFloors] = useState(false);
 
   const [stock, setStock] = useState({});
 
+  const [floorsOwned, setFloorsOwned] = useState(["default"]);
   const [selectedFloor, setSelectedFloor] = useState("default");
 
   const [runningAppliances, setRunningAppliances] = useState([]);
@@ -569,6 +566,7 @@ function App() {
         setRearranging={setRearranging}
         setCoordsOfRearrangingApp={setCoordsOfRearrangingApp}
         setShowStock={setShowStock}
+        setShowFloors={setShowFloors}
       />}
 
       <div id="kitchen" className="w-[500px] h-[300px] mt-12">
@@ -601,6 +599,17 @@ function App() {
         setShowStock={setShowStock}
         stock={stock}
         setStock={setStock}
+        money={money}
+        setMoney={setMoney}
+      />}
+
+      {showFloors && <Floors 
+        showFloors={showFloors}
+        setShowFloors={setShowFloors}
+        selectedFloor={selectedFloor}
+        setSelectedFloor={setSelectedFloor}
+        floorsOwned={floorsOwned}
+        setFloorsOwned={setFloorsOwned}
         money={money}
         setMoney={setMoney}
       />}
