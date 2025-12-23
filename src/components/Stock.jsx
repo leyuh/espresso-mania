@@ -9,7 +9,7 @@ export default function Stock ({ showStock, setShowStock, stock, setStock, money
     return <div className="absolute bg-[#574e46] text-zinc-100 w-[600px] h-[70vh] z-50 border-black border-4 md:h-[50vh] p-6 rounded-md">
         <button className="absolute right-2 top-2 p-3 text-2xl font-bold z-50" onClick={() => setShowStock(false)}>X</button>
         <h1 className="font-bold text-2xl text-center">Stock</h1>
-        <div>
+        <div className="overflow-y-scroll h-[95%]">
             {Object.keys(STOCK).map((key, i) => <button onClick={() => {
                 if (money < STOCK[key].priceToBuy) {
                     incorrectSound.current.currentTime = 0; // Rewind to start

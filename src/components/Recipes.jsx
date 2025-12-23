@@ -1,10 +1,10 @@
 import { RECIPES, ORDERS } from "./data.js"
 
-const recipesToDisplay = ["americano", "cappuccino", "macchiato", "latte", "mocha", "hot chocolate", "latte frap", "mocha frap"];
+const recipesToDisplay = ["americano", "cappuccino", "macchiato", "latte", "mocha", "hot chocolate", "mocha frap", "caramel frap"];
 
 export default function Recipes ({ showRecipes, setShowRecipes }) {
-    return <div className="absolute bg-[#574e46] text-zinc-100 w-[600px] h-[70vh] z-40 border-black border-4 md:h-[50vh] p-6 rounded-md">
-        <button className="absolute right-2 top-2 p-3 text-2xl font-bold" onClick={() => setShowRecipes(false)}>X</button>
+    return <div className="absolute bg-[#574e46] text-zinc-100 w-[600px] h-[70vh] z-50 border-black border-4 md:h-[50vh] p-6 rounded-md">
+        <button className="absolute right-2 top-2 p-3 text-2xl font-bold z-50" onClick={() => setShowRecipes(false)}>X</button>
         <h1 className="font-bold text-2xl text-center">Recipes</h1>
         <ul className="overflow-y-scroll h-[95%] mt-2">
             {recipesToDisplay.map((name, i) => <li key={i} className="my-4">

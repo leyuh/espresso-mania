@@ -27,4 +27,11 @@ body {
   }
 }
 
+button:hover {
+  cursor: grab;
+}
+.custom-cursor-mode button:hover {
+  cursor: inherit; /* Preserve custom when active */
+}
+
 

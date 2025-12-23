@@ -1,11 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 
-import { NAMES, ORDERS } from "./data.js";
+import { NAMES, ORDERS, POSITIVE_REVIEWS, NEGATIVE_REVIEWS } from "./data.js";
 
 const MAX_ORDERS = 5;
 const MAX_COMPLETION_TIME = 60;
 
-const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients, setOrders, setMoney, setRating, i }) => {
+const getReview = (name, opinion) => {
+    let message = null;
+    if (opinion == "positive") message = POSITIVE_REVIEWS[Math.floor(Math.random() * POSITIVE_REVIEWS.length)];
+    if (opinion == "negative") message = NEGATIVE_REVIEWS[Math.floor(Math.random() * NEGATIVE_REVIEWS.length)];
+
+    return [name, message];
+}
+
+const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients, setOrders, setMoney, setRating, setReview, i }) => {
 
     const correctSound = useRef(new Audio('/music/money.mp3'));
     const incorrectSound = useRef(new Audio('/music/wrong.mp3'));
@@ -19,6 +27,8 @@ const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients,
                 incorrectSound.current.currentTime = 0; // Rewind to start
                 incorrectSound.current.volume = 0.5;
                 incorrectSound.current.play();
+
+                setReview(getReview(name, "negative"));
             } else {
                 correctSound.current.currentTime = 0.2; // Rewind to start
                 correctSound.current.volume = 0.5;
@@ -28,9 +38,12 @@ const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients,
                 let completionTime = Math.floor((Date.now() - timeOrdered) / 1000);
 
                 if (completionTime > MAX_COMPLETION_TIME) {
-                    setRating(prev => Math.max(1, prev - Math.min(completionTime, 120)/100))
+                    setRating(prev => Math.max(1, prev - Math.min(completionTime, 120)/100));
+                    setReview(getReview(name, "negative"));
+                } else if (completionTime < MAX_COMPLETION_TIME) {
+                    setRating(prev => Math.min(5, prev + ((MAX_COMPLETION_TIME-completionTime)/200)));
+                    setReview(getReview(name, "positive"));
                 };
-                if (completionTime < MAX_COMPLETION_TIME) setRating(prev => Math.min(5, prev + ((MAX_COMPLETION_TIME-completionTime)/200)));
             }
             
 
@@ -48,6 +61,8 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
     const timeoutRef = useRef(null);
 
     const soundEffect = useRef(new Audio('/music/bell.mp3'));
+
+    const [review, setReview] = useState(null);
 
     useEffect(() => {
         if (timeoutRef.current) {
@@ -78,7 +93,7 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
 
 
         const scheduleNextOrder = () => {
-            const randomDelay = Math.floor(Math.random() * 7000) + 3000; // 5-15s
+            const randomDelay = Math.floor(Math.random() * 10000) + 4000; // 5-15s
       
             timeoutRef.current = setTimeout(() => {
               addOrder();
@@ -98,10 +113,14 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
     
 
     return <div className="absolute w-[70%] h-[100px] top-0">
+        {review && <div className="absolute -left-[140px] z-50 p-2 text-right w-[150px]">
+            <h1 className="font-bold">{review[0]}:</h1>
+            <p>{review[1]}</p>
+        </div>}
         <div className="h-[10px] bg-zinc-400 top-0 rounded-b-md">
         </div>
         <div className="flex px-5 flex-row z-5 gap-4 h-[80px] w-full -top-[10px] relative">
-            {orders.map((order, i) => <Ticket name={order[0]} order={order[1]} price={order[2]} timeOrdered={order[3]} currItem={currItem} setCurrIngredients={setCurrIngredients} setOrders={setOrders} setMoney={setMoney} setRating={setRating} i={i} />)}
+            {orders.map((order, i) => <Ticket name={order[0]} order={order[1]} price={order[2]} timeOrdered={order[3]} currItem={currItem} setCurrIngredients={setCurrIngredients} setOrders={setOrders} setMoney={setMoney} setRating={setRating} setReview={setReview} i={i} />)}
         </div>
     </div>
 }

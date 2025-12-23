@@ -44,7 +44,7 @@ const APPLIANCES = [
     defaultLocation: [0, 0],
     ingredientToAdd: "shot",
     requiredItem: "beans",
-    duration: 6,
+    duration: 8,
     sound: "/music/espresso.mp3",
     volume: 1,
     startAudioAt: 3,
@@ -54,7 +54,7 @@ const APPLIANCES = [
     name: "steamer",
     defaultLocation: [0, 1],
     ingredientToAdd: "heat",
-    duration: 3,
+    duration: 5,
     sound: "/music/steam.mp3",
     volume: .5,
     startAudioAt: .5
@@ -63,7 +63,7 @@ const APPLIANCES = [
     name: "frother",
     defaultLocation: [0, 2],
     ingredientToAdd: "froth",
-    duration: 2,
+    duration: 5,
     sound: "/music/froth.mp3",
     volume: .3,
   },
@@ -90,7 +90,7 @@ const APPLIANCES = [
     name: "blender",
     defaultLocation: [0, 3],
     ingredientToAdd: "blend",
-    duration: 3,
+    duration: 5,
     sound: "/music/blender.mp3",
     volume: 1,
     startAudioAt: 1,
@@ -124,6 +124,13 @@ const APPLIANCES = [
     ingredientToAdd: "caramel",
     requiredItem: "caramel",
     icon: caramelIcon
+  },
+  {
+    name: "vanilla pump",
+    defaultLocation: [2, 4],
+    ingredientToAdd: "vanilla",
+    requiredItem: "vanilla",
+    icon: vanillaIcon
   },
 ]
 
@@ -521,22 +528,13 @@ function App() {
     setTileData(newTiles);
   }, []);
 
-
-  useEffect(() => {
-    
-    const handleMouseMove = (e) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  useEffect(() => {
-    if (currItem) document.body.style.cursor = 'grab';
-    if (!currItem) document.body.style.cursor = 'default';
-  }, [currItem])
+  if (currItem || coordsOfRearrangingApp != null) {
+    document.body.style.cursor = "grabbing";
+    document.body.classList.add('custom-cursor-mode');
+  } else {
+    document.body.style.cursor = 'auto';
+    document.body.classList.remove('custom-cursor-mode');
+  }
 
   return (
     <div className="App flex items-center relative justify-center h-[100vh]">
@@ -592,14 +590,6 @@ function App() {
         />
       </div>
 
-      {currItem && <div className="flex flex-col items-center justify-center text-center absolute cursor-grab pointer-events-none" style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          transform: 'translate(-50%, -50%)', // Centers the text on the cursor
-      }}>
-        <img src={cupIcon} />
-        <p>{currItem}</p>
-      </div>}
 
       {showRecipes && <Recipes 
         showRecipes={showRecipes}
@@ -614,6 +604,8 @@ function App() {
         money={money}
         setMoney={setMoney}
       />}
+
+      {currItem && <h1 className="absolute font-bold text-xl text-center top-[95px]">In hand: {currItem}</h1>}
 
     </div>
   );
