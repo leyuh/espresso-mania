@@ -4,6 +4,13 @@ import cupsIcon from './icons/cups.png';
 import waterIcon from "./icons/water.png";
 import iceIcon from "./icons/ice.png";
 import milkIcon from "./icons/milk.png";
+import trashIcon from "./icons/trash.png";
+import espressoIcon from "./icons/espresso.png";
+import blenderIcon from "./icons/blender.png";
+
+import chocolateIcon from "./icons/pumps/chocolate.png";
+import caramelIcon from "./icons/pumps/caramel.png";
+import vanillaIcon from "./icons/pumps/vanilla.png";
 
 import cupIcon from './icons/cup.png';
 
@@ -40,7 +47,8 @@ const APPLIANCES = [
     duration: 6,
     sound: "/music/espresso.mp3",
     volume: 1,
-    startAudioAt: 3
+    startAudioAt: 3,
+    icon: espressoIcon
   },
   {
     name: "steamer",
@@ -85,7 +93,8 @@ const APPLIANCES = [
     duration: 3,
     sound: "/music/blender.mp3",
     volume: 1,
-    startAudioAt: 1
+    startAudioAt: 1,
+    icon: blenderIcon
   },
   {
     name: "cup stack",
@@ -98,7 +107,8 @@ const APPLIANCES = [
     defaultLocation: [0, 6],
     sound: "/music/trash.mp3",
     volume: .5,
-    startAudioAt: 0.5
+    startAudioAt: 0.5,
+    icon: trashIcon
   },
 
   {
@@ -106,12 +116,14 @@ const APPLIANCES = [
     defaultLocation: [2, 5],
     ingredientToAdd: "chocolate",
     requiredItem: "chocolate",
+    icon: chocolateIcon
   },
   {
     name: "caramel pump",
     defaultLocation: [2, 6],
     ingredientToAdd: "caramel",
     requiredItem: "caramel",
+    icon: caramelIcon
   },
 ]
 
@@ -278,7 +290,7 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
     {app.requiredItem && <p className=" absolute top-0 w-full text-black text-sm">{stock[app.requiredItem] > 0 ? `${stock[app.requiredItem]} serving(s) ${app.requiredItem}` : "!!!"}</p>}
     {app.icon && <div className="flex items-center justify-center my-2 h-[70%] "><img className="object-contain w-full h-full relative" src={app.icon} /></div>}
     <p className="px-1 text-sm lg:text-lg z-5 h-6 -mt-3 md:mt-0">{app.name}</p>
-    {(app.duration && runningAppliances.filter(runningApp => runningApp.name == app.name).length) ? (<div className="w-[90%] mx-2 h-4 mt-10 relative bg-black border-black border-2 rounded-lg">
+    {(app.duration && runningAppliances.filter(runningApp => runningApp.name == app.name).length) ? (<div className="w-[90%] mx-2 h-4 top-[65%] absolute bg-black border-black border-2 rounded-lg">
       <div className="bg-green-500 h-full border-2 border-black rounded-lg" style={{
         width: `${(app.duration - runningAppliances.find(runningApp => runningApp.name == app.name).timeLeft)/app.duration * 100}%`
       }} />
@@ -511,6 +523,7 @@ function App() {
 
 
   useEffect(() => {
+    
     const handleMouseMove = (e) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };

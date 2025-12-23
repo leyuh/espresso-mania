@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 import { NAMES, ORDERS } from "./data.js";
 
-const MAX_ORDERS = 3;
+const MAX_ORDERS = 5;
 const MAX_COMPLETION_TIME = 60;
 
 const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients, setOrders, setMoney, setRating, i }) => {
@@ -100,7 +100,7 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
     return <div className="absolute w-[70%] h-[100px] top-0">
         <div className="h-[10px] bg-zinc-400 top-0 rounded-b-md">
         </div>
-        <div className="flex px-5 flex-row z-5 gap-2 h-[80px] w-full -top-[10px] relative">
+        <div className="flex px-5 flex-row z-5 gap-4 h-[80px] w-full -top-[10px] relative">
             {orders.map((order, i) => <Ticket name={order[0]} order={order[1]} price={order[2]} timeOrdered={order[3]} currItem={currItem} setCurrIngredients={setCurrIngredients} setOrders={setOrders} setMoney={setMoney} setRating={setRating} i={i} />)}
         </div>
     </div>
