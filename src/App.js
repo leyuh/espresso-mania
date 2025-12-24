@@ -534,7 +534,9 @@ function App() {
   }
 
   return (
-    <div className="App flex items-center relative justify-center h-[100vh]">
+    <div className="App flex items-center relative justify-center h-[100vh]" style={{
+      backgroundColor: FLOORS[selectedFloor].colors[2]
+    }}>
       <BackgroundMusic />
 
       <div className="p-2 text-2xl font-bold absolute top-0 right-0 flex flex-col gap-4">

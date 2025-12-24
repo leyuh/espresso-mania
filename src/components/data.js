@@ -168,14 +168,14 @@ export const STOCK = {
 }
 
 export const FLOORS = {
-    default: { colors: ["#ab9685", "#e0d5cc"], price: null },
-    red: { colors: ["#a63f3f", "#e3e3e3"], price: 20 },
-    gray: { colors: ["#bbc0c4", "#767e85"], price: 30 },
-    green: { colors: ["#b8d1bc", "#7b9c80"], price: 40 },
-    blue: { colors: ["#7192bf", "#e9f0f7"], price: 50 },
-    pink: { colors: ["#ffc2d2", "#fff0a6"], price: 60 },
-    purple: { colors: ["#f7e1f6", "#7d68a3"], price: 70 },
-    seafoam: { colors: ["#adc9c2", "#5a8c7f"], price: 80 },
+    default: { colors: ["#ab9685", "#e0d5cc", "#ccb6a3"], price: null },
+    red: { colors: ["#a63f3f", "#e3e3e3", "#242323"], price: 20 },
+    gray: { colors: ["#bbc0c4", "#767e85", "#e1e3e6"], price: 30 },
+    green: { colors: ["#b8d1bc", "#7b9c80", "#63544a"], price: 40 },
+    blue: { colors: ["#7192bf", "#e9f0f7", "#314661"], price: 50 },
+    pink: { colors: ["#ffc2d2", "#fff0a6", "#edccab"], price: 60 },
+    purple: { colors: ["#f7e1f6", "#7d68a3", "#c0aed6"], price: 70 },
+    seafoam: { colors: ["#adc9c2", "#5a8c7f", "#254039"], price: 80 },
 }
 
 export const POSITIVE_REVIEWS = ["Great!", "Wow!", "Best day ever!", "Thanks!", "Yay!", "Delicious!"];
