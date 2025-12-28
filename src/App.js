@@ -90,7 +90,6 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
         setCurrIngredients([]);
 
         if (app.sound) {
-          console.log("play audio");
           
           let soundEffect = new Audio(app.sound);
           !app.startAudioAt ? (soundEffect.currentTime = 0) : (soundEffect.currentTime = app.startAudioAt);
@@ -130,7 +129,6 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
 
           // start appliance timer
           if (app.sound) {
-            console.log("play audio");
             let soundEffect = new Audio(app.sound);
             !app.startAudioAt ? (soundEffect.currentTime = 0) : (soundEffect.currentTime = app.startAudioAt);
             soundEffect.volume = app.volume;
@@ -161,7 +159,6 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
         } else if (runningApp && runningApp.timeLeft == 0) {
           // pick up item, timer is done
 
-          console.log("!!!");
           setCurrIngredients([...tileData[r][c].ingredientsIn, app.ingredientToAdd]);
 
           let newTileData = [...tileData];
@@ -173,7 +170,6 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
 
         }
       } else {
-        console.log("!!");
         if (!newItemExists) return;
         if (app.requiredItem && stock[app.requiredItem] == 0) {
           incorrectSound.current.currentTime = 0; // Rewind to start
@@ -215,7 +211,6 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
     className="text-center flex-col cursor-grab size-full z-30 items-center flex justify-center"
     onClick={() => {
       if (currItem) {
-        console.log("combining", currItem, tileItem.name);
 
         let ings = [...new Set([...RECIPES[currItem], ...RECIPES[tileItem.name]])].sort();
 
@@ -229,7 +224,6 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
 
         if (!newItem) return;
 
-        console.log(newItem);
         let newItems = tileData;
         newItems[r][c] = {type: "item", name: newItem};
         setTileData(prev => newItems);
@@ -237,15 +231,12 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
         setCurrIngredients([]);
         
       } else if (!currItem) {
-        console.log("picking up item");
-        console.log(RECIPES[tileItem.name]);
         setCurrIngredients(RECIPES[tileItem.name]);
 
         let newItems = tileData.map(r => [...r]);  
         newItems[r] = [...newItems[r]];
         newItems[r][c] = null;
 
-        console.log(newItems);
         setTileData(newItems);
       }
       
@@ -259,8 +250,9 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
 
 const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTileData, selectedFloor, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances, XP, setXP }) => {
   return <div className="flex flex-row w-full h-full bg-[#574e46] border-[3px] border-[#574e46] rounded-md">
-    {[...Array(7)].map((col, c) => <div className="flex flex-col w-full">
+    {[...Array(7)].map((col, c) => <div className="flex flex-col w-full" key={c}>
       {[...Array(5)].map((row, r) => <div
+        key={r}
         className={`w-[100%] h-[100%] ${!rearranging ? "border-[#574e46]" : "border-green-600"} rounded-md overflow-hidden border-[3px]`}
         style={((!(r % 2) && !(c % 2)) || ((r % 2) && (c % 2))) ? {
           backgroundColor: `${FLOORS[selectedFloor].colors[0]}`
@@ -292,11 +284,9 @@ const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTil
           if (isApplianceOnTile) return;
           if (currIngredients.length == 0) return;
 
-          console.log("placing");
           let newTileData = [...tileData];
           newTileData[r][c] = {type: "item", name: currItem};
           setTileData(newTileData);
-          console.log("!!");
 
           setCurrIngredients([]);
         }}
@@ -318,6 +308,7 @@ function App() {
 
   // 0 xp = level 1, 100 xp = level 2
   const [XP, setXP] = useState(0);
+  const lastMilestoneRef = useRef(0);
 
   const [money, setMoney] = useState(0);
   const [rating, setRating] = useState(3);
@@ -381,7 +372,6 @@ function App() {
   }, []); // Only run once
 
   useEffect(() => {
-    console.log(currIngredients);
 
     if (!currIngredients.length) {
       setCurrItem(null);
@@ -390,7 +380,6 @@ function App() {
 
     Object.entries(RECIPES).forEach(([key, value]) => {
       if (arraysAreEqual(value.sort(), currIngredients.sort())) {
-        console.log(key);
         setCurrItem(key);
         return;
       }
@@ -429,32 +418,30 @@ function App() {
       }
     }
 
-    console.log(newTiles);
     setTileData(newTiles);
   }, []);
 
   useEffect(() => {
-    // place new unlocked appliances on level up
+    // level up
+    const currentMilestone = Math.floor(XP / 100) * 100;
+    if (currentMilestone <= lastMilestoneRef.current) return;
+
+    console.log("Level up!");
+    lastMilestoneRef.current = currentMilestone;
+
     let newTiles = tileData;
     for (let i = 0; i < APPLIANCES.length; i++) {
       let app = APPLIANCES[i];
       if (app.unlockLvl == Math.floor((XP + 100) / 100)) {
-        const hasApp = tileData.some(row => 
-          row.some(cell => cell && cell.name === app.name)
-        );
-        if (!hasApp) {
-          if (newTiles[app.defaultLocation[0]][app.defaultLocation[1]] == null) {
-            newTiles[app.defaultLocation[0]][app.defaultLocation[1]] = { type: "appliance", name: app.name};
-          } else {
-            let emptyCoords = findFirstNullIndex(newTiles);
-            newTiles[emptyCoords[0]][emptyCoords[1]] = { type: "appliance", name: app.name};
-          }
-          
+        if (newTiles[app.defaultLocation[0]][app.defaultLocation[1]] == null) {
+          newTiles[app.defaultLocation[0]][app.defaultLocation[1]] = { type: "appliance", name: app.name};
+        } else {
+          let emptyCoords = findFirstNullIndex(newTiles);
+          newTiles[emptyCoords[0]][emptyCoords[1]] = { type: "appliance", name: app.name};
         }
       }
     }
 
-    console.log(newTiles);
     setTileData(newTiles);
   }, [XP])
 
