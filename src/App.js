@@ -1,17 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
 
-import cupsIcon from './icons/cups.png';
-import waterIcon from "./icons/water.png";
-import iceIcon from "./icons/ice.png";
-import milkIcon from "./icons/milk.png";
-import trashIcon from "./icons/trash.png";
-import espressoIcon from "./icons/espresso.png";
-import blenderIcon from "./icons/blender.png";
-
-import chocolateIcon from "./icons/pumps/chocolate.png";
-import caramelIcon from "./icons/pumps/caramel.png";
-import vanillaIcon from "./icons/pumps/vanilla.png";
-
 import cupIcon from './icons/cup.png';
 
 import Orders from './components/Orders';
@@ -19,7 +7,7 @@ import Customize from './components/Customize';
 import Recipes from './components/Recipes';
 import Floors from './components/Floors';
 
-import { RECIPES, STOCK, FLOORS } from './components/data.js';
+import { RECIPES, STOCK, FLOORS, APPLIANCES } from './components/data.js';
 import Stock from './components/Stock';
 
 
@@ -33,101 +21,16 @@ const getItemFromIngredients = (ingredients) => {
   return item;
 }
 
-const APPLIANCES = [
-  {
-    name: "espresso machine",
-    defaultLocation: [0, 0],
-    ingredientToAdd: "shot",
-    requiredItem: "beans",
-    duration: 8,
-    sound: "/music/espresso.mp3",
-    volume: 1,
-    startAudioAt: 3,
-    icon: espressoIcon
-  },
-  {
-    name: "steamer",
-    defaultLocation: [0, 1],
-    ingredientToAdd: "heat",
-    duration: 5,
-    sound: "/music/steam.mp3",
-    volume: .5,
-    startAudioAt: .5
-  },
-  {
-    name: "frother",
-    defaultLocation: [0, 2],
-    ingredientToAdd: "froth",
-    duration: 5,
-    sound: "/music/froth.mp3",
-    volume: .3,
-  },
-  {
-    name: "ice dispenser",
-    defaultLocation: [2, 0],
-    ingredientToAdd: "ice",
-    icon: iceIcon
-  },
-  {
-    name: "water dispenser",
-    defaultLocation: [2, 1],
-    ingredientToAdd: "water",
-    icon: waterIcon
-  },
-  {
-    name: "milk maker",
-    defaultLocation: [2, 2],
-    ingredientToAdd: "milk",
-    requiredItem: "milk",
-    icon: milkIcon
-  },
-  {
-    name: "blender",
-    defaultLocation: [0, 3],
-    ingredientToAdd: "blend",
-    duration: 5,
-    sound: "/music/blender.mp3",
-    volume: 1,
-    startAudioAt: 1,
-    icon: blenderIcon
-  },
-  {
-    name: "cup stack",
-    defaultLocation: [0, 5],
-    ingredientToAdd: "cup",
-    icon: cupsIcon
-  },
-  {
-    name: "trash",
-    defaultLocation: [0, 6],
-    sound: "/music/trash.mp3",
-    volume: .5,
-    startAudioAt: 0.5,
-    icon: trashIcon
-  },
+function findFirstNullIndex(grid) {
+  const rowIndex = grid.findIndex(row => row.includes(null));
+  
+  if (rowIndex === -1) return null; // No null found
+  
+  const colIndex = grid[rowIndex].findIndex(cell => cell === null);
+  
+  return [rowIndex, colIndex];
+}
 
-  {
-    name: "chocolate pump",
-    defaultLocation: [2, 5],
-    ingredientToAdd: "chocolate",
-    requiredItem: "chocolate",
-    icon: chocolateIcon
-  },
-  {
-    name: "caramel pump",
-    defaultLocation: [2, 6],
-    ingredientToAdd: "caramel",
-    requiredItem: "caramel",
-    icon: caramelIcon
-  },
-  {
-    name: "vanilla pump",
-    defaultLocation: [2, 4],
-    ingredientToAdd: "vanilla",
-    requiredItem: "vanilla",
-    icon: vanillaIcon
-  },
-]
 
 function arraysAreEqual(arr1, arr2) {
   // remove duplicates
@@ -301,13 +204,13 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
   </button>
 }
 
-const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, setTileData, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances ) => {
+const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, setTileData, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances, XP, setXP ) => {
   if (!tileData) return null;
   if (!tileData[r][c]) return null;
 
   let tileItem = tileData[r][c];
 
-  if (tileItem.type == "appliance") return <Appliance r={r} c={c} app={APPLIANCES.filter(a => a.name == tileItem.name)[0]} currIngredients={currIngredients} setCurrIngredients={setCurrIngredients} tileData={tileData} setTileData={setTileData} open={open} rearranging={rearranging} coordsOfRearrangingApp={coordsOfRearrangingApp} setCoordsOfRearrangingApp={setCoordsOfRearrangingApp} stock={stock} setStock={setStock} runningAppliances={runningAppliances} setRunningAppliances={setRunningAppliances} />
+  if (tileItem.type == "appliance" && XP >= (APPLIANCES.filter(a => a.name == tileItem.name)[0].unlockLvl * 100 - 100)) return <Appliance r={r} c={c} app={APPLIANCES.filter(a => a.name == tileItem.name)[0]} currIngredients={currIngredients} setCurrIngredients={setCurrIngredients} tileData={tileData} setTileData={setTileData} open={open} rearranging={rearranging} coordsOfRearrangingApp={coordsOfRearrangingApp} setCoordsOfRearrangingApp={setCoordsOfRearrangingApp} stock={stock} setStock={setStock} runningAppliances={runningAppliances} setRunningAppliances={setRunningAppliances} />
   else if (tileItem.type == "item") return <button
     className="text-center flex-col cursor-grab size-full z-30 items-center flex justify-center"
     onClick={() => {
@@ -354,7 +257,7 @@ const getTile = (r, c, currItem, currIngredients, setCurrIngredients, tileData, 
   return null;
 }
 
-const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTileData, selectedFloor, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances }) => {
+const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTileData, selectedFloor, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances, XP, setXP }) => {
   return <div className="flex flex-row w-full h-full bg-[#574e46] border-[3px] border-[#574e46] rounded-md">
     {[...Array(7)].map((col, c) => <div className="flex flex-col w-full">
       {[...Array(5)].map((row, r) => <div
@@ -398,7 +301,7 @@ const Floor = ({ currItem, currIngredients, setCurrIngredients, tileData, setTil
           setCurrIngredients([]);
         }}
       >
-        {getTile(r, c, currItem, currIngredients, setCurrIngredients, tileData, setTileData, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances)}
+        {getTile(r, c, currItem, currIngredients, setCurrIngredients, tileData, setTileData, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances, XP, setXP)}
       </div>)}
     </div>)}
   </div>
@@ -413,7 +316,10 @@ function App() {
 
   const [orders, setOrders] = useState([]);
 
-  const [money, setMoney] = useState(1000);
+  // 0 xp = level 1, 100 xp = level 2
+  const [XP, setXP] = useState(0);
+
+  const [money, setMoney] = useState(0);
   const [rating, setRating] = useState(3);
 
   const [open, setOpen] = useState(false);
@@ -518,12 +424,39 @@ function App() {
     let newTiles = tileData;
     for (let i = 0; i < APPLIANCES.length; i++) {
       let app = APPLIANCES[i];
-      newTiles[app.defaultLocation[0]][app.defaultLocation[1]] = { type: "appliance", name: app.name};
+      if (app.unlockLvl <= Math.floor((XP + 100) / 100)) {
+        newTiles[app.defaultLocation[0]][app.defaultLocation[1]] = { type: "appliance", name: app.name};
+      }
     }
 
     console.log(newTiles);
     setTileData(newTiles);
   }, []);
+
+  useEffect(() => {
+    // place new unlocked appliances on level up
+    let newTiles = tileData;
+    for (let i = 0; i < APPLIANCES.length; i++) {
+      let app = APPLIANCES[i];
+      if (app.unlockLvl == Math.floor((XP + 100) / 100)) {
+        const hasApp = tileData.some(row => 
+          row.some(cell => cell && cell.name === app.name)
+        );
+        if (!hasApp) {
+          if (newTiles[app.defaultLocation[0]][app.defaultLocation[1]] == null) {
+            newTiles[app.defaultLocation[0]][app.defaultLocation[1]] = { type: "appliance", name: app.name};
+          } else {
+            let emptyCoords = findFirstNullIndex(newTiles);
+            newTiles[emptyCoords[0]][emptyCoords[1]] = { type: "appliance", name: app.name};
+          }
+          
+        }
+      }
+    }
+
+    console.log(newTiles);
+    setTileData(newTiles);
+  }, [XP])
 
   if (currItem || coordsOfRearrangingApp != null) {
     document.body.style.cursor = "grabbing";
@@ -551,6 +484,10 @@ function App() {
 
         <button className="bg-[#574e46] text-zinc-100 px-6 -mt-2 py-2 border-4 border-black rounded-md font-bold text-lg" onClick={() => setShowRecipes(prev => !prev)}>Recipes</button>
         
+        <div className="flex text-right flex-col">
+          <h1>Level {Math.floor((XP + 100) / 100)}</h1>
+          <p>{XP % 100}% to next lvl</p>
+        </div>
         <h1 className="text-right px-2">{Math.round(rating*10)/10} / 5</h1>
         <h1 className="text-right px-2">${money}</h1>
       </div>
@@ -563,6 +500,8 @@ function App() {
         setMoney={setMoney}
         setRating={setRating}
         open={open}
+        XP={XP}
+        setXP={setXP}
       /> : <Customize
         rearranging={rearranging}
         setRearranging={setRearranging}
@@ -587,6 +526,8 @@ function App() {
           setStock={setStock}
           runningAppliances={runningAppliances}
           setRunningAppliances={setRunningAppliances}
+          XP={XP}
+          setXP={setXP}
         />
       </div>
 

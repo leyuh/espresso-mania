@@ -1,3 +1,15 @@
+import cupsIcon from "../icons/cups.png";
+import waterIcon from "../icons/water.png";
+import iceIcon from "../icons/ice.png";
+import milkIcon from "../icons/milk.png";
+import trashIcon from "../icons/trash.png";
+import espressoIcon from "../icons/espresso.png";
+import blenderIcon from "../icons/blender.png";
+
+import chocolateIcon from "../icons/pumps/chocolate.png";
+import caramelIcon from "../icons/pumps/caramel.png";
+import vanillaIcon from "../icons/pumps/vanilla.png";
+
 export const RECIPES = {
     cup: ["cup"],
   
@@ -64,6 +76,114 @@ export const RECIPES = {
   
 }
 
+export const APPLIANCES = [
+    {
+      name: "espresso machine",
+      defaultLocation: [0, 0],
+      ingredientToAdd: "shot",
+      requiredItem: "beans",
+      duration: 8,
+      sound: "/music/espresso.mp3",
+      volume: 1,
+      startAudioAt: 3,
+      icon: espressoIcon,
+      unlockLvl: 1
+    },
+    {
+      name: "steamer",
+      defaultLocation: [0, 1],
+      ingredientToAdd: "heat",
+      duration: 5,
+      sound: "/music/steam.mp3",
+      volume: .5,
+      startAudioAt: .5,
+      unlockLvl: 1
+    },
+    {
+      name: "frother",
+      defaultLocation: [0, 2],
+      ingredientToAdd: "froth",
+      duration: 5,
+      sound: "/music/froth.mp3",
+      volume: .3,
+      unlockLvl: 3
+    },
+    {
+      name: "ice dispenser",
+      defaultLocation: [2, 0],
+      ingredientToAdd: "ice",
+      icon: iceIcon,
+      unlockLvl: 1
+    },
+    {
+      name: "water dispenser",
+      defaultLocation: [2, 1],
+      ingredientToAdd: "water",
+      icon: waterIcon,
+      unlockLvl: 1
+    },
+    {
+      name: "milk maker",
+      defaultLocation: [2, 2],
+      ingredientToAdd: "milk",
+      requiredItem: "milk",
+      icon: milkIcon,
+      unlockLvl: 2
+    },
+    {
+      name: "blender",
+      defaultLocation: [0, 3],
+      ingredientToAdd: "blend",
+      duration: 5,
+      sound: "/music/blender.mp3",
+      volume: 1,
+      startAudioAt: 1,
+      icon: blenderIcon,
+      unlockLvl: 4
+    },
+    {
+      name: "cup stack",
+      defaultLocation: [0, 5],
+      ingredientToAdd: "cup",
+      icon: cupsIcon,
+      unlockLvl: 1
+    },
+    {
+      name: "trash",
+      defaultLocation: [0, 6],
+      sound: "/music/trash.mp3",
+      volume: .5,
+      startAudioAt: 0.5,
+      icon: trashIcon,
+      unlockLvl: 1
+    },
+  
+    {
+      name: "chocolate pump",
+      defaultLocation: [2, 5],
+      ingredientToAdd: "chocolate",
+      requiredItem: "chocolate",
+      icon: chocolateIcon,
+      unlockLvl: 3
+    },
+    {
+      name: "caramel pump",
+      defaultLocation: [2, 6],
+      ingredientToAdd: "caramel",
+      requiredItem: "caramel",
+      icon: caramelIcon,
+      unlockLvl: 5
+    },
+    {
+      name: "vanilla pump",
+      defaultLocation: [2, 4],
+      ingredientToAdd: "vanilla",
+      requiredItem: "vanilla",
+      icon: vanillaIcon,
+      unlockLvl: 6
+    },
+];
+  
 export const NAMES = ["John", "James", "Jack", "Sandra", "Randal", "Jessica", "George", "Bill", "Barbara", "Bella", "Noah", "Caden", "Peter", "Olivia", "Mia", "Rebecca", "Rose", "Sue", "Paul", "Alex", "Jason", "Jake", "Jennifer", "Ellie", "Paige", "Madison"];
 
 export const ORDERS = [
@@ -169,13 +289,13 @@ export const STOCK = {
 
 export const FLOORS = {
     default: { colors: ["#ab9685", "#e0d5cc", "#ccb6a3"], price: null },
-    red: { colors: ["#a63f3f", "#e3e3e3", "#242323"], price: 20 },
-    gray: { colors: ["#bbc0c4", "#767e85", "#e1e3e6"], price: 30 },
-    green: { colors: ["#b8d1bc", "#7b9c80", "#63544a"], price: 40 },
-    blue: { colors: ["#7192bf", "#e9f0f7", "#314661"], price: 50 },
-    pink: { colors: ["#ffc2d2", "#fff0a6", "#edccab"], price: 60 },
-    purple: { colors: ["#f7e1f6", "#7d68a3", "#c0aed6"], price: 70 },
-    seafoam: { colors: ["#adc9c2", "#5a8c7f", "#254039"], price: 80 },
+    red: { colors: ["#a63f3f", "#e3e3e3", "#242323"], price: 100 },
+    gray: { colors: ["#bbc0c4", "#767e85", "#e1e3e6"], price: 100 },
+    green: { colors: ["#b8d1bc", "#7b9c80", "#63544a"], price: 200 },
+    blue: { colors: ["#7192bf", "#e9f0f7", "#314661"], price: 200 },
+    pink: { colors: ["#ffc2d2", "#fff0a6", "#edccab"], price: 300 },
+    purple: { colors: ["#f7e1f6", "#7d68a3", "#c0aed6"], price: 300 },
+    seafoam: { colors: ["#adc9c2", "#5a8c7f", "#254039"], price: 300 },
 }
 
 export const POSITIVE_REVIEWS = ["Great!", "Wow!", "Best day ever!", "Thanks!", "Yay!", "Delicious!"];

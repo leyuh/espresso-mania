@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 
-import { NAMES, ORDERS, POSITIVE_REVIEWS, NEGATIVE_REVIEWS } from "./data.js";
+import { NAMES, ORDERS, POSITIVE_REVIEWS, NEGATIVE_REVIEWS, RECIPES, APPLIANCES } from "./data.js";
 
-const MAX_ORDERS = 5;
+const MAX_ORDERS = 10;
 const MAX_COMPLETION_TIME = 60;
 
 const getReview = (name, opinion) => {
@@ -13,7 +13,7 @@ const getReview = (name, opinion) => {
     return [name, message];
 }
 
-const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients, setOrders, setMoney, setRating, setReview, i }) => {
+const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients, setOrders, setMoney, setRating, setReview, setXP, i }) => {
 
     const correctSound = useRef(new Audio('/music/money.mp3'));
     const incorrectSound = useRef(new Audio('/music/wrong.mp3'));
@@ -23,6 +23,7 @@ const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients,
         onClick={() => {
             if (!currItem) return;
             if (currItem != order) {
+                // Order is incorrect
                 setRating(prev => Math.max(1, prev - .5));
                 incorrectSound.current.currentTime = 0; // Rewind to start
                 incorrectSound.current.volume = 0.5;
@@ -30,9 +31,12 @@ const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients,
 
                 setReview(getReview(name, "negative"));
             } else {
+                // Order is correct
                 correctSound.current.currentTime = 0.2; // Rewind to start
                 correctSound.current.volume = 0.5;
                 correctSound.current.play();
+
+                setXP(prev => prev + 25);
 
                 setMoney(prev => prev + price);
                 let completionTime = Math.floor((Date.now() - timeOrdered) / 1000);
@@ -57,7 +61,7 @@ const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients,
 }
 
 
-export default function Orders ({ orders, setOrders, currItem, setCurrIngredients, setMoney, setRating, open }) {
+export default function Orders ({ orders, setOrders, currItem, setCurrIngredients, setMoney, setRating, open, XP, setXP }) {
     const timeoutRef = useRef(null);
 
     const soundEffect = useRef(new Audio('/music/bell.mp3'));
@@ -76,7 +80,13 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
 
         const addOrder = () => {
             let newName = NAMES[Math.floor(Math.random() * NAMES.length)];
-            let newOrder = ORDERS[Math.floor(Math.random() * ORDERS.length)];
+
+            let lockedIngredients = APPLIANCES.filter((app, i) => app.unlockLvl > (Math.floor((XP + 100) / 100))).map(app => app.ingredientToAdd);
+
+
+            let unlockedOrders = ORDERS.filter(order => !RECIPES[order.item].some(item => lockedIngredients.includes(item)));
+
+            let newOrder = unlockedOrders[Math.floor(Math.random() * unlockedOrders.length)];
             
             let orderName = newOrder.item;
             if (newOrder.variants) orderName = newOrder.variants[Math.floor(Math.random()*newOrder.variants.length)] + " " + orderName;
@@ -120,7 +130,7 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
         <div className="h-[10px] bg-zinc-400 top-0 rounded-b-md">
         </div>
         <div className="flex px-5 flex-row z-5 gap-4 h-[80px] w-full -top-[10px] relative">
-            {orders.map((order, i) => <Ticket name={order[0]} order={order[1]} price={order[2]} timeOrdered={order[3]} currItem={currItem} setCurrIngredients={setCurrIngredients} setOrders={setOrders} setMoney={setMoney} setRating={setRating} setReview={setReview} i={i} />)}
+            {orders.map((order, i) => <Ticket name={order[0]} order={order[1]} price={order[2]} timeOrdered={order[3]} currItem={currItem} setCurrIngredients={setCurrIngredients} setOrders={setOrders} setMoney={setMoney} setRating={setRating} setReview={setReview} setXP={setXP} i={i} />)}
         </div>
     </div>
 }
