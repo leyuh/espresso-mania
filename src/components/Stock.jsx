@@ -1,7 +1,7 @@
-import { STOCK } from "./data"
+import { APPLIANCES, STOCK } from "./data"
 import { useRef } from "react";
 
-export default function Stock ({ showStock, setShowStock, stock, setStock, money, setMoney }) {
+export default function Stock ({ showStock, setShowStock, stock, setStock, money, setMoney, XP }) {
 
     const incorrectSound = useRef(new Audio('/music/wrong.mp3'));
     const correctSound = useRef(new Audio('/music/money.mp3'));
@@ -10,7 +10,11 @@ export default function Stock ({ showStock, setShowStock, stock, setStock, money
         <button className="absolute right-2 top-2 p-3 text-2xl font-bold z-50" onClick={() => setShowStock(false)}>X</button>
         <h1 className="font-bold text-2xl text-center">Stock</h1>
         <div className="overflow-y-scroll h-[95%]">
-            {Object.keys(STOCK).map((key, i) => <button onClick={() => {
+            {Object.keys(STOCK).filter((key, i) => {
+                let app = APPLIANCES.filter(app => app.requiredItem == key)[0];
+                let level = Math.floor((XP + 100) / 100);
+                return app.unlockLvl <= level;
+            }).map((key, i) => <button onClick={() => {
                 if (money < STOCK[key].priceToBuy) {
                     incorrectSound.current.currentTime = 0; // Rewind to start
                     incorrectSound.current.volume = 0.5;

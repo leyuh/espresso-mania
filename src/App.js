@@ -6,6 +6,7 @@ import Orders from './components/Orders';
 import Customize from './components/Customize';
 import Recipes from './components/Recipes';
 import Floors from './components/Floors';
+import Unlocked from './components/Unlocked';
 
 import { RECIPES, STOCK, FLOORS, APPLIANCES } from './components/data.js';
 import Stock from './components/Stock';
@@ -321,6 +322,7 @@ function App() {
   const [showRecipes, setShowRecipes] = useState(false);
   const [showStock, setShowStock] = useState(false);
   const [showFloors, setShowFloors] = useState(false);
+  const [showUnlocked, setShowUnlocked] = useState(false);
 
   const [stock, setStock] = useState({});
 
@@ -429,6 +431,8 @@ function App() {
     console.log("Level up!");
     lastMilestoneRef.current = currentMilestone;
 
+    setShowUnlocked(true);
+
     let newTiles = tileData;
     for (let i = 0; i < APPLIANCES.length; i++) {
       let app = APPLIANCES[i];
@@ -531,6 +535,7 @@ function App() {
         setStock={setStock}
         money={money}
         setMoney={setMoney}
+        XP={XP}
       />}
 
       {showFloors && <Floors 
@@ -542,6 +547,11 @@ function App() {
         setFloorsOwned={setFloorsOwned}
         money={money}
         setMoney={setMoney}
+      />}
+
+      {showUnlocked && <Unlocked
+        setShowUnlocked={setShowUnlocked}
+        XP={XP}
       />}
 
       {currItem && <h1 className="absolute font-bold text-xl text-center top-[95px]">In hand: {currItem}</h1>}

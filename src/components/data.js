@@ -188,6 +188,10 @@ export const NAMES = ["John", "James", "Jack", "Sandra", "Randal", "Jessica", "G
 
 export const ORDERS = [
     {
+        item: "shot",
+        price: 1.5
+    },
+    {
         item: "mocha",
         variants: ["hot", "iced"],
         price: 5

@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 import { NAMES, ORDERS, POSITIVE_REVIEWS, NEGATIVE_REVIEWS, RECIPES, APPLIANCES } from "./data.js";
 
-const MAX_ORDERS = 10;
+const MAX_ORDERS = 6;
 const MAX_COMPLETION_TIME = 60;
 
 const getReview = (name, opinion) => {
@@ -36,7 +36,7 @@ const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients,
                 correctSound.current.volume = 0.5;
                 correctSound.current.play();
 
-                setXP(prev => prev + 25);
+                setXP(prev => prev + 15);
 
                 setMoney(prev => prev + price);
                 let completionTime = Math.floor((Date.now() - timeOrdered) / 1000);
