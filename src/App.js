@@ -158,6 +158,7 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
   
           setCurrIngredients([]);
         } else if (runningApp && runningApp.timeLeft == 0) {
+          if (!open) return;
           // pick up item, timer is done
 
           setCurrIngredients([...tileData[r][c].ingredientsIn, app.ingredientToAdd]);

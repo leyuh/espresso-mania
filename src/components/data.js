@@ -106,7 +106,7 @@ export const APPLIANCES = [
       duration: 5,
       sound: "/music/froth.mp3",
       volume: .3,
-      unlockLvl: 3
+      unlockLvl: 4
     },
     {
       name: "ice dispenser",
@@ -139,7 +139,7 @@ export const APPLIANCES = [
       volume: 1,
       startAudioAt: 1,
       icon: blenderIcon,
-      unlockLvl: 4
+      unlockLvl: 5
     },
     {
       name: "cup stack",
@@ -172,7 +172,7 @@ export const APPLIANCES = [
       ingredientToAdd: "caramel",
       requiredItem: "caramel",
       icon: caramelIcon,
-      unlockLvl: 5
+      unlockLvl: 7
     },
     {
       name: "vanilla pump",
@@ -187,10 +187,6 @@ export const APPLIANCES = [
 export const NAMES = ["John", "James", "Jack", "Sandra", "Randal", "Jessica", "George", "Bill", "Barbara", "Bella", "Noah", "Caden", "Peter", "Olivia", "Mia", "Rebecca", "Rose", "Sue", "Paul", "Alex", "Jason", "Jake", "Jennifer", "Ellie", "Paige", "Madison"];
 
 export const ORDERS = [
-    {
-        item: "shot",
-        price: 1.5
-    },
     {
         item: "mocha",
         variants: ["hot", "iced"],
@@ -249,7 +245,7 @@ export const ORDERS = [
 
 export const STOCK = {
     "beans": {
-        defaultStock: 12,
+        defaultStock: 8,
         
         amountToBuy: 20,
         priceToBuy: 5,

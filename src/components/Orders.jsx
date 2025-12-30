@@ -4,6 +4,8 @@ import { NAMES, ORDERS, POSITIVE_REVIEWS, NEGATIVE_REVIEWS, RECIPES, APPLIANCES 
 
 const MAX_ORDERS = 6;
 const MAX_COMPLETION_TIME = 60;
+const ORDER_COMPLETION_XP = 10;
+const ORDER_RATE = [1, 7];
 
 const getReview = (name, opinion) => {
     let message = null;
@@ -36,7 +38,7 @@ const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients,
                 correctSound.current.volume = 0.5;
                 correctSound.current.play();
 
-                setXP(prev => prev + 15);
+                setXP(prev => prev + ORDER_COMPLETION_XP);
 
                 setMoney(prev => prev + price);
                 let completionTime = Math.floor((Date.now() - timeOrdered) / 1000);
@@ -103,7 +105,7 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
 
 
         const scheduleNextOrder = () => {
-            const randomDelay = Math.floor(Math.random() * 10000) + 4000; // 5-15s
+            const randomDelay = Math.floor(Math.random() * (ORDER_RATE[0] * 1000)) + ((ORDER_RATE[1] - ORDER_RATE[0]) * 1000);
       
             timeoutRef.current = setTimeout(() => {
               addOrder();
