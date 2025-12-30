@@ -61,7 +61,7 @@ const BackgroundMusic = () => {
   return (
     <audio
       ref={audioRef}
-      src="/music/background.mp3"  // Place file in public/music
+      src="./music/background.mp3"  // Place file in public/music
       loop
       autoPlay={false}  // Set to false to avoid block; trigger manually
     />
