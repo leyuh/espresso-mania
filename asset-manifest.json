@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/espresso-mania/static/css/main.2d633178.css",
+    "main.js": "/espresso-mania/static/js/main.03eac4d8.js",
+    "static/media/cups.png": "/espresso-mania/static/media/cups.b54a24d2dcca581ee237.png",
+    "static/media/espresso.png": "/espresso-mania/static/media/espresso.4a8fcaea778c9be4a43a.png",
+    "index.html": "/espresso-mania/index.html",
+    "main.2d633178.css.map": "/espresso-mania/static/css/main.2d633178.css.map",
+    "main.03eac4d8.js.map": "/espresso-mania/static/js/main.03eac4d8.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.2d633178.css",
+    "static/js/main.03eac4d8.js"
+  ]
+}
