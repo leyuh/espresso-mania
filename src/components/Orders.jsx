@@ -17,8 +17,8 @@ const getReview = (name, opinion) => {
 
 const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients, setOrders, setMoney, setRating, setReview, setXP, i }) => {
 
-    const correctSound = useRef(new Audio('/music/money.mp3'));
-    const incorrectSound = useRef(new Audio('/music/wrong.mp3'));
+    const correctSound = useRef(new Audio(`${process.env.PUBLIC_URL}/music/money.mp3`));
+    const incorrectSound = useRef(new Audio(`${process.env.PUBLIC_URL}/music/wrong.mp3`));
 
     return <button
         className="px-2 pb-4 text-left bg-gray-50 z-5 cursor-grab h-full w-[150px] shadow-md flex flex-col rounded-b-md"
@@ -66,7 +66,7 @@ const Ticket = ({ name, order, price, timeOrdered, currItem, setCurrIngredients,
 export default function Orders ({ orders, setOrders, currItem, setCurrIngredients, setMoney, setRating, open, XP, setXP }) {
     const timeoutRef = useRef(null);
 
-    const soundEffect = useRef(new Audio('/music/bell.mp3'));
+    const soundEffect = useRef(new Audio(`${process.env.PUBLIC_URL}/music/bell.mp3`));
 
     const [review, setReview] = useState(null);
 
@@ -132,7 +132,7 @@ export default function Orders ({ orders, setOrders, currItem, setCurrIngredient
         <div className="h-[10px] bg-zinc-400 top-0 rounded-b-md">
         </div>
         <div className="flex px-5 flex-row z-5 gap-4 h-[80px] w-full -top-[10px] relative">
-            {orders.map((order, i) => <Ticket name={order[0]} order={order[1]} price={order[2]} timeOrdered={order[3]} currItem={currItem} setCurrIngredients={setCurrIngredients} setOrders={setOrders} setMoney={setMoney} setRating={setRating} setReview={setReview} setXP={setXP} i={i} />)}
+            {orders.map((order, i) => <Ticket key={i} name={order[0]} order={order[1]} price={order[2]} timeOrdered={order[3]} currItem={currItem} setCurrIngredients={setCurrIngredients} setOrders={setOrders} setMoney={setMoney} setRating={setRating} setReview={setReview} setXP={setXP} i={i} />)}
         </div>
     </div>
 }

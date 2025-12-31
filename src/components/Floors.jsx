@@ -7,8 +7,8 @@ const FloorTile = ({color}) => <div className={`size-[55px] rounded-sm border-[#
 
 export default function Floors ({ showFloors, setShowFloors, selectedFloor, setSelectedFloor, floorsOwned, setFloorsOwned, money, setMoney }) {
 
-    const incorrectSound = useRef(new Audio('/music/wrong.mp3'));
-    const correctSound = useRef(new Audio('/music/money.mp3'));
+    const incorrectSound = useRef(new Audio(`${process.env.PUBLIC_URL}/music/wrong.mp3`));
+    const correctSound = useRef(new Audio(`${process.env.PUBLIC_URL}/music/money.mp3`));
 
     return <div className="absolute bg-[#574e46] text-zinc-100 w-[600px] h-[250px] z-50 border-black border-4 p-6 rounded-md">
         <button className="absolute right-2 top-2 p-3 text-2xl font-bold z-50" onClick={() => setShowFloors(false)}>X</button>

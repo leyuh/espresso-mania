@@ -3,8 +3,8 @@ import { useRef } from "react";
 
 export default function Stock ({ showStock, setShowStock, stock, setStock, money, setMoney, XP }) {
 
-    const incorrectSound = useRef(new Audio('/music/wrong.mp3'));
-    const correctSound = useRef(new Audio('/music/money.mp3'));
+    const incorrectSound = useRef(new Audio(`${process.env.PUBLIC_URL}/music/wrong.mp3`));
+    const correctSound = useRef(new Audio(`${process.env.PUBLIC_URL}/music/money.mp3`));
 
     return <div className="absolute bg-[#574e46] text-zinc-100 w-[600px] h-[70vh] z-50 border-black border-4 md:h-[50vh] p-6 rounded-md">
         <button className="absolute right-2 top-2 p-3 text-2xl font-bold z-50" onClick={() => setShowStock(false)}>X</button>
@@ -14,7 +14,7 @@ export default function Stock ({ showStock, setShowStock, stock, setStock, money
                 let app = APPLIANCES.filter(app => app.requiredItem == key)[0];
                 let level = Math.floor((XP + 100) / 100);
                 return app.unlockLvl <= level;
-            }).map((key, i) => <button onClick={() => {
+            }).map((key, i) => <button key={i} onClick={() => {
                 if (money < STOCK[key].priceToBuy) {
                     incorrectSound.current.currentTime = 0; // Rewind to start
                     incorrectSound.current.volume = 0.5;

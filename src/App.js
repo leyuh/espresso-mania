@@ -61,7 +61,7 @@ const BackgroundMusic = () => {
   return (
     <audio
       ref={audioRef}
-      src="/music/background.mp3"  // Place file in public/music
+      src={`${process.env.PUBLIC_URL}/music/background.mp3`}  // Place file in public/music
       loop
       autoPlay={false}  // Set to false to avoid block; trigger manually
     />
@@ -70,7 +70,7 @@ const BackgroundMusic = () => {
 
 
 const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, setTileData, open, rearranging, coordsOfRearrangingApp, setCoordsOfRearrangingApp, stock, setStock, runningAppliances, setRunningAppliances }) => {
-  const incorrectSound = useRef(new Audio('/music/wrong.mp3'));
+  const incorrectSound = useRef(new Audio(`${process.env.PUBLIC_URL}/music/wrong.mp3`));
 
   return <button
     className={`flex relative text-center flex-col justify-center size-full md:font-bold ${coordsOfRearrangingApp && coordsOfRearrangingApp[0] == r && coordsOfRearrangingApp[1] == c ? "bg-zinc-100" : ""}`}
@@ -92,7 +92,7 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
 
         if (app.sound) {
           
-          let soundEffect = new Audio(app.sound);
+          let soundEffect = new Audio(`${process.env.PUBLIC_URL}${app.sound}`);
           !app.startAudioAt ? (soundEffect.currentTime = 0) : (soundEffect.currentTime = app.startAudioAt);
           soundEffect.volume = app.volume;
           soundEffect.play();
@@ -130,7 +130,7 @@ const Appliance = ({ r, c, app, currIngredients, setCurrIngredients, tileData, s
 
           // start appliance timer
           if (app.sound) {
-            let soundEffect = new Audio(app.sound);
+            let soundEffect = new Audio(`${process.env.PUBLIC_URL}${app.sound}`);
             !app.startAudioAt ? (soundEffect.currentTime = 0) : (soundEffect.currentTime = app.startAudioAt);
             soundEffect.volume = app.volume;
             soundEffect.play();
